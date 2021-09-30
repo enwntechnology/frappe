@@ -84,8 +84,18 @@ def get_rendered_template(doc, name=None, print_format=None, meta=None,
 	doc.flags.in_print = True
 	doc.flags.print_settings = print_settings
 
+
+	# allow print View for Sales Invoice and Purchase Invoice base on is_published_option
+	if doc.doctype=="Sales Invoice" or doc.doctype=="Purchase Invoice":
+		if hasattr(doc, 'is_published_option'):
+			if doc.is_published_option=="Yes":
+				frappe.flags.ignore_print_permissions = True
+
 	if not frappe.flags.ignore_print_permissions:
 		validate_print_permission(doc)
+
+	frappe.flags.ignore_print_permissions = False
+	# end allow
 
 	if doc.meta.is_submittable:
 		if doc.docstatus==0 and not cint(print_settings.allow_print_for_draft):
